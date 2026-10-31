@@ -50,6 +50,31 @@ const commandDescriptions: Record<string, string> = {
   teleport: '将会话发送到云端或从 claude.ai 恢复会话',
 }
 
+const additionalCommands: Record<string, [string, string]> = {
+  branch: ['Create a branch of the current conversation at this point', '从当前位置创建对话分支'],
+  effort: ['Set effort level for model usage', '设置模型的 effort 级别'],
+  hooks: ['View hook configurations for tool events', '查看工具事件的 hook 配置'],
+  plan: ['Enable plan mode or view the current session plan', '启用计划模式或查看当前会话计划'],
+  rename: ['Rename the current conversation', '重命名当前对话'],
+  tasks: ['View and manage everything running in the background', '查看和管理所有后台任务'],
+  theme: ['Change the theme', '更改主题'],
+  'reload-plugins': ['Activate pending plugin changes in the current session', '在当前会话中启用待生效的插件更改'],
+  'reload-skills': ['Pick up skills added or changed on disk during this session', '加载本次会话期间新增或修改的技能'],
+  artifacts: ['Browse your published and shared artifacts', '浏览你发布的和共享给你的 artifacts'],
+  advisor: ['Let Claude consult a stronger model at key moments', '让 Claude 在关键时刻咨询更强的模型'],
+  focus: ['Toggle focus view: just your prompt, summary, and response', '切换专注视图，仅显示你的提示、摘要和回复'],
+  mobile: ['Show QR code to download the Claude mobile app', '显示 Claude 移动应用的下载二维码'],
+  'output-style': ['List output styles or switch to one', '列出输出风格或切换风格'],
+  'privacy-settings': ['View and update your privacy settings', '查看和更新隐私设置'],
+  'remote-env': ['Choose the default environment for cloud agents', '选择云端 Agent 的默认环境'],
+  'usage-credits': ['Configure usage credits or request them from your admin when you hit a limit', '配置用量额度，或在达到上限时向管理员申请'],
+  'web-setup': ['Set up cloud sessions with your GitHub account', '使用 GitHub 账号设置云端会话'],
+  workflows: ['Browse running and completed workflows', '浏览进行中和已完成的工作流'],
+  background: ['Send this session to the background and free the terminal', '将此会话转入后台并释放终端'],
+  daemon: ['Manage background services and routines', '管理后台服务和例行任务'],
+  recap: ['Generate a one-line session recap now', '立即生成一句话的会话回顾'],
+}
+
 const configLabels: Record<string, string> = {
   theme: '主题', remoteControl: '为所有会话启用远程控制',
   defaultToAgentsView: '默认打开 Agent 视图', notifChannel: '本地通知',
@@ -75,6 +100,7 @@ const configLabels: Record<string, string> = {
 }
 
 const modeLabels: Record<string, string> = {
+  focus: '专注模式',
   'memory paused': '记忆已暂停',
   'account memory: read-only': '账户记忆：只读',
   'account memory: off': '账户记忆：关闭',
@@ -93,7 +119,10 @@ function lookup(table: Record<string, string>, key: string): string | undefined 
 
 export const register: Register = (on) => {
   on('command.describe', ($, e, next) => {
-    const description = e.provider.plugin === 'engine' ? lookup(commandDescriptions, e.command) : undefined
+    const candidate = Object.prototype.hasOwnProperty.call(additionalCommands, e.command) ? additionalCommands[e.command] : undefined
+    const description = e.provider.plugin === 'engine'
+      ? lookup(commandDescriptions, e.command) ?? (e.provider.tier === 'core' && candidate?.[0] === e.description ? candidate[1] : undefined)
+      : undefined
     return description ? next({ ...e, description }) : next(e)
   })
 
