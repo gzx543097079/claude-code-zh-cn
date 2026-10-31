@@ -9,6 +9,12 @@ test('命令和设置只翻译已知内置项目', async ($, on) => {
   expect((await $.command.describe(command)).description).toBe('显示帮助')
   expect((await $.command.describe({ ...command, provider: thirdParty })).description).toBe('Original')
   expect((await $.command.describe({ ...command, command: 'constructor' })).description).toBe('Original')
+  const branch = { ...command, command: 'branch', description: 'Create a branch of the current conversation at this point', argumentHint: '[name]' }
+  const translatedBranch = await $.command.describe(branch)
+  expect(translatedBranch.description).toBe('从当前位置创建对话分支')
+  expect(translatedBranch.argumentHint).toBe('[name]')
+  expect((await $.command.describe({ ...branch, description: 'Changed upstream' })).description).toBe('Changed upstream')
+  expect((await $.command.describe({ ...branch, provider: thirdParty })).description).toBe(branch.description)
   const setting = { key: 'theme', label: 'Theme', description: 'Help', isHidden: false, provider: core }
   expect((await $.config.describe(setting)).label).toBe('主题')
   expect((await $.config.describe({ ...setting, provider: thirdParty })).label).toBe('Theme')
