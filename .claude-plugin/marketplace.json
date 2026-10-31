@@ -1,0 +1,7 @@
+{
+  "name": "hanzi-interface-marketplace",
+  "owner": { "name": "gzx543097079" },
+  "plugins": [
+    { "name": "hanzi-interface", "source": "./" }
+  ]
+}

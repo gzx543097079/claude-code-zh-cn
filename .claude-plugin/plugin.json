@@ -1,0 +1,6 @@
+{
+  "name": "hanzi-interface",
+  "version": "0.1.0",
+  "description": "使用 Claude Code 插件接口翻译部分界面文字。",
+  "license": "MIT"
+}
